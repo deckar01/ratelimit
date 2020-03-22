@@ -1,6 +1,13 @@
 ratelimit |build| |maintainability|
 ===================================
 
+This project is a fork of `tomasbasham/ratelimit <https://github.com/tomasbasham/ratelimit>`_
+that implements a `sliding log <https://konghq.com/blog/how-to-design-a-scalable-rate-limiting-algorithm/>`_
+for correctness and provides persistance via sqlite. See the usage section on
+`Persistence <#persistence>`_ for more details. Turning on persistence is highly
+recommended, especially during development, to ensure rate limits are respected
+between application restarts.
+
 APIs are a very common way to interact with web services. As the need to
 consume data grows, so does the number of API calls necessary to remain up to
 date with data sources. However many API providers constrain developers from
@@ -121,6 +128,9 @@ cost of halting the thread.
         if response.status_code != 200:
             raise Exception('API response: {}'.format(response.status_code))
         return response
+
+Persistence
+~~~~~~~~~~~
 
 If a limit needs to be respected between application restarts or shared by
 multiple processes, the ``storage`` argument can be used to save the limit
