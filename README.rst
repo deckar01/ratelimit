@@ -122,6 +122,50 @@ cost of halting the thread.
             raise Exception('API response: {}'.format(response.status_code))
         return response
 
+If a limit needs to be respected between application restarts or shared by
+multiple processes, the ``storage`` argument can be used to save the limit
+state to disk and load it automatically.
+
+.. code:: python
+
+    from ratelimit import limits, sleep_a_retry
+
+    import requests
+
+    FIFTEEN_MINUTES = 900
+
+    @sleep_and_retry
+    @limits(calls=15, period=FIFTEEN_MINUTES, storage='ratelimit.db')
+    def call_api(url):
+        response = requests.get(url)
+
+        if response.status_code != 200:
+            raise Exception('API response: {}'.format(response.status_code))
+        return response
+
+If multiple limits need to be persisted, the ``name`` argument can be used to
+store them in the same database using different tables.
+
+.. code:: python
+
+    from ratelimit import limits, sleep_a_retry
+
+    import requests
+
+    HOUR = 3600
+    DAY = 24*HOUR
+
+    @sleep_and_retry
+    @limits(calls=15, period=HOUR, storage='ratelimit.db', name='hourly_limit')
+    @sleep_and_retry
+    @limits(calls=100, period=DAY, storage='ratelimit.db', name='daily_limit')
+    def call_api(url):
+        response = requests.get(url)
+
+        if response.status_code != 200:
+            raise Exception('API response: {}'.format(response.status_code))
+        return response
+
 License
 -------
 

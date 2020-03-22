@@ -10,16 +10,15 @@ from math import floor
 
 import time
 import sys
-import threading
+import sqlite3
 
 from ratelimit.exception import RateLimitException
-from ratelimit.utils import now
 
 class RateLimitDecorator(object):
     '''
     Rate limit decorator class.
     '''
-    def __init__(self, calls=15, period=900, clock=now(), raise_on_limit=True):
+    def __init__(self, calls=15, period=900, raise_on_limit=True, storage=':memory:', name='main_limit'):
         '''
         Instantiate a RateLimitDecorator with some sensible defaults. By
         default the Twitter rate limiting window is respected (15 calls every
@@ -27,20 +26,56 @@ class RateLimitDecorator(object):
 
         :param int calls: Maximum function invocations allowed within a time period.
         :param float period: An upper bound time period (in seconds) before the rate limit resets.
-        :param function clock: An optional function retuning the current time.
         :param bool raise_on_limit: A boolean allowing the caller to avoiding rasing an exception.
+        :param string storage: An sqlite3 database path for storing the call history.
+        :param string name: The name of the sqlite3 table.
         '''
         self.clamped_calls = max(1, min(sys.maxsize, floor(calls)))
         self.period = period
-        self.clock = clock
         self.raise_on_limit = raise_on_limit
 
-        # Initialise the decorator state.
-        self.last_reset = clock()
-        self.num_calls = 0
+        self.database = sqlite3.connect(storage)
+        self.name = name
 
-        # Add thread safety.
-        self.lock = threading.RLock()
+        try:
+            with self.database:
+                self.database.execute(
+                    """
+                    CREATE TABLE {}
+                    (time DATETIME DEFAULT(julianday('now')))
+                    """.format(self.name)
+                )
+        except sqlite3.OperationalError:
+            pass
+
+    @property
+    def _offset(self):
+        return str(-self.period) + ' seconds'
+
+    @property
+    def _num_calls(self):
+        query = self.database.execute(
+            """
+            SELECT count(*) FROM {}
+            WHERE time >= julianday('now', '{}')
+            """.format(self.name, self._offset)
+        )
+        return int(query.fetchone()[0])
+
+    @property
+    def _period_remaining(self):
+        query = self.database.execute(
+            """
+            SELECT julianday('now') - time FROM {}
+            WHERE time >= julianday('now', '{}')
+            LIMIT 1
+            """.format(self.name, self._offset)
+        )
+        result = query.fetchone()
+        if result:
+            oldest_age = 24*60*60*float(result[0])
+            return max(0, self.period - oldest_age)
+        return 0
 
     def __call__(self, func):
         '''
@@ -64,36 +99,29 @@ class RateLimitDecorator(object):
             :param kargs: keyworded variable length argument list to the decorated function.
             :raises: RateLimitException
             '''
-            with self.lock:
-                period_remaining = self.__period_remaining()
-
-                # If the time window has elapsed then reset.
-                if period_remaining <= 0:
-                    self.num_calls = 0
-                    self.last_reset = self.clock()
-
-                # Increase the number of attempts to call the function.
-                self.num_calls += 1
-
-                # If the number of attempts to call the function exceeds the
-                # maximum then raise an exception.
-                if self.num_calls > self.clamped_calls:
-                    if self.raise_on_limit:
-                        raise RateLimitException('too many calls', period_remaining)
-                    return
-
-            return func(*args, **kargs)
+            while True:
+                try:
+                    with self.database:
+                        self.database.execute("BEGIN TRANSACTION")
+                        # If the number of attempts to call the function exceeds the
+                        # maximum then raise an exception.
+                        if self._num_calls >= self.clamped_calls:
+                            if self.raise_on_limit:
+                                raise RateLimitException('too many calls', self._period_remaining)
+                            return
+                        # Clean old calls
+                        self.database.execute(
+                            """
+                            DELETE FROM {}
+                            WHERE time < julianday('now', '{}')
+                            """.format(self.name, self._offset)
+                        )
+                        # Log call
+                        self.database.execute("INSERT INTO {} DEFAULT VALUES".format(self.name))
+                    return func(*args, **kargs)
+                except sqlite3.OperationalError:
+                    pass
         return wrapper
-
-    def __period_remaining(self):
-        '''
-        Return the period remaining for the current rate limit window.
-
-        :return: The remaing period.
-        :rtype: float
-        '''
-        elapsed = self.clock() - self.last_reset
-        return self.period - elapsed
 
 def sleep_and_retry(func):
     '''
