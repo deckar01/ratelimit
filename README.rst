@@ -23,7 +23,7 @@ Add this line to your application's requirements.txt:
 
 .. code:: python
 
-    ratelimit
+    deckar01-ratelimit
 
 And then execute:
 
@@ -35,7 +35,7 @@ Or install it yourself:
 
 .. code:: bash
 
-    $ pip install ratelimit
+    $ pip install deckar01-ratelimit
 
 GitHub
 ~~~~~~
@@ -44,7 +44,7 @@ Installing the latest version from Github:
 
 .. code:: bash
 
-    $ git clone https://github.com/tomasbasham/ratelimit
+    $ git clone https://github.com/deckar01/ratelimit
     $ cd ratelimit
     $ python setup.py install
 
@@ -171,9 +171,9 @@ License
 
 This project is licensed under the `MIT License <LICENSE.txt>`_.
 
-.. |build| image:: https://travis-ci.com/tomasbasham/ratelimit.svg?branch=master
-    :target: https://travis-ci.com/tomasbasham/ratelimit
+.. |build| image:: https://travis-ci.com/deckar01/ratelimit.svg?branch=master
+    :target: https://travis-ci.com/deckar01/ratelimit
 
-.. |maintainability| image:: https://api.codeclimate.com/v1/badges/21dc7c529c35cd7ef732/maintainability
-    :target: https://codeclimate.com/github/tomasbasham/ratelimit/maintainability
+.. |maintainability| image:: https://api.codeclimate.com/v1/badges/8bf92a976a1763a93339/maintainability
+    :target: https://codeclimate.com/github/deckar01/ratelimit/maintainability
     :alt: Maintainability

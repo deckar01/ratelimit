@@ -8,13 +8,13 @@ def readme():
         return infile.read()
 
 setup(
-    name='ratelimit',
+    name='deckar01-ratelimit',
     version=ratelimit.__version__,
     description='API rate limit decorator',
     long_description=readme().strip(),
-    author='Tomas Basham',
-    author_email='me@tomasbasham.co.uk',
-    url='https://github.com/tomasbasham/ratelimit',
+    author='Jared Deckard',
+    author_email='jared@shademaps.com',
+    url='https://github.com/deckar01/ratelimit',
     license='MIT',
     packages=['ratelimit'],
     install_requires=[],
