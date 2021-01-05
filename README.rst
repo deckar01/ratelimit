@@ -138,7 +138,7 @@ state to disk and load it automatically.
 
 .. code:: python
 
-    from ratelimit import limits, sleep_a_retry
+    from ratelimit import limits, sleep_and_retry
 
     import requests
 
@@ -158,7 +158,7 @@ store them in the same database using different tables.
 
 .. code:: python
 
-    from ratelimit import limits, sleep_a_retry
+    from ratelimit import limits, sleep_and_retry
 
     import requests
 
