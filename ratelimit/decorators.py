@@ -10,6 +10,7 @@ from math import floor
 
 import time
 import sys
+import threading
 import sqlite3
 
 from ratelimit.exception import RateLimitException
@@ -36,6 +37,9 @@ class RateLimitDecorator(object):
 
         self.database = sqlite3.connect(storage)
         self.name = name
+
+        # Add thread safety.
+        self.lock = threading.RLock()
 
         try:
             with self.database:
@@ -101,7 +105,7 @@ class RateLimitDecorator(object):
             '''
             while True:
                 try:
-                    with self.database:
+                    with self.database, self.lock:
                         self.database.execute("BEGIN TRANSACTION")
                         # If the number of attempts to call the function exceeds the
                         # maximum then raise an exception.
