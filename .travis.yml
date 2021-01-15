@@ -9,11 +9,3 @@ matrix:
   fast_finish: true
 script:
 - py.test
-deploy:
-  provider: pypi
-  user: deckar01
-  password:
-    secure: DMmwVa1cnIrDlYCbsVOFrxprSJ/zKSa2TjsuALbWZGMn4C3o8ykDAl8tRQBx2tXCR+bV9IEgsmIaqrJOqgtOZZTYE0r+mCn9yZV8Bg9jBLJJncfWhe/fLmWDjvQYgjRas/NlXfUjqlD6rbxJTEPwmUhjCyUj82eYr4D/teIYEXm8FVBEP7kmShLB/qC4JmCk9p/mQ8aUUdDILysmYh4gsNDaQ29JUnbZTO9tzkuOp3WZZYi51GdJITJhqHvQ0k3NCy9t8JUNiWWjyMxJzBbhBDKpilmYRr2ee5i3C2TVnwD9DKG99vpXzUfoW7iHojyHkp4NPFf1zL3xxqFT0yptJk/vPuEklC6YA4f8Wuroizg3ioEX1awESjpBFvdm0y8X7D9LbSNXLHtzVk6Ny2Mbv2e+SScg0bpIVEJJ3tFsNytlNaAPVo+tv+HvO/CDNgatfmiLGBc1jpPnP532zLhBlOnxMvBPg2gjn01tXKCXXP5vpagXz0Eh3DuH1mo2+GqlP99z4T/deF4EcIaQKbGzoeTfRUz9pzJlcT4BfnukHgRm5/Ce+E0CmbmCA6hv2WiWTc0isP9zcRIo3lcEwoCg65GTbeBOjcv3p2uMitSeeI5Hr3zKQkF0D7AXCe3AG8peagxqofvXNk2PWMION3SVMK/vhgepscfa7mPyzXQJvsQ=
-  on:
-    tags: true
-    repo: deckar01/ratelimit
