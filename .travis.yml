@@ -1,12 +1,12 @@
 language: python
 python:
-- '2.7'
-- '3.2'
+- '3.6'
+- '3.7'
+- '3.8'
+- '3.9'
 sudo: false
 matrix:
   fast_finish: true
-  allow_failures:
-  - python: '3.2'
 script:
 - py.test
 deploy:

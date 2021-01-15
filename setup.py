@@ -17,6 +17,7 @@ setup(
     url='https://github.com/deckar01/ratelimit',
     license='MIT',
     packages=['ratelimit'],
+    python_requires='>3.6.0',
     install_requires=[],
     keywords=[
         'ratelimit',
