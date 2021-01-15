@@ -19,7 +19,7 @@ class RateLimitDecorator(object):
     '''
     Rate limit decorator class.
     '''
-    def __init__(self, calls=15, period=900, raise_on_limit=True, storage=':memory:', name='main_limit'):
+    def __init__(self, calls=15, period=900, raise_on_limit=True, storage='file:ratelimit?mode=memory&cache=shared', name='main_limit'):
         '''
         Instantiate a RateLimitDecorator with some sensible defaults. By
         default the Twitter rate limiting window is respected (15 calls every
@@ -35,7 +35,7 @@ class RateLimitDecorator(object):
         self.period = period
         self.raise_on_limit = raise_on_limit
 
-        self.database = sqlite3.connect(storage)
+        self.database = sqlite3.connect(storage, uri=True, check_same_thread=False)
         self.name = name
 
         # Add thread safety.
