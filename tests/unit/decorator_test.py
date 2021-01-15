@@ -1,8 +1,13 @@
-import time
+import unittest
+import sqlite3
 from ratelimit import limits, RateLimitException
-from tests import unittest
 
 class TestDecorator(unittest.TestCase):
+
+    def sleep(self, n):
+        # Push calls back in time to simulate sleep
+        self.database.execute("UPDATE main_limit SET time = julianday(time, '{} seconds')".format(-n))
+        self.database.commit()
 
     @limits(calls=1, period=10)
     def increment(self):
@@ -19,9 +24,13 @@ class TestDecorator(unittest.TestCase):
         '''
         self.count += 1
 
-    def setUp(self):
+    def setup_method(self, _):
         self.count = 0
-        time.sleep(10)
+        self.database = sqlite3.connect('file:ratelimit?mode=memory&cache=shared', uri=True)
+
+    def teardown_method(self, _):
+        self.database.execute('DELETE FROM main_limit')
+        self.database.commit()
 
     def test_increment(self):
         self.increment()
@@ -33,7 +42,7 @@ class TestDecorator(unittest.TestCase):
 
     def test_reset(self):
         self.increment()
-        time.sleep(10)
+        self.sleep(10)
 
         self.increment()
         self.assertEqual(self.count, 2)
