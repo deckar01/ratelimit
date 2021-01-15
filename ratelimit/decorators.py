@@ -57,7 +57,7 @@ class RateLimitDecorator(object):
         query = self.database.execute(
             """
             SELECT count(*) FROM {}
-            WHERE time >= julianday('now', '{}')
+            WHERE time > julianday('now', '{}')
             """.format(self.name, self._offset)
         )
         return int(query.fetchone()[0])
@@ -67,7 +67,7 @@ class RateLimitDecorator(object):
         query = self.database.execute(
             """
             SELECT julianday('now') - time FROM {}
-            WHERE time >= julianday('now', '{}')
+            WHERE time > julianday('now', '{}')
             LIMIT 1
             """.format(self.name, self._offset)
         )
@@ -113,7 +113,7 @@ class RateLimitDecorator(object):
                         self.database.execute(
                             """
                             DELETE FROM {}
-                            WHERE time < julianday('now', '{}')
+                            WHERE time <= julianday('now', '{}')
                             """.format(self.name, self._offset)
                         )
                         # Log call
